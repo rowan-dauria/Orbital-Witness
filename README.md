@@ -13,6 +13,18 @@ A brief description of the project goes here.
 
 ## Installation
 
+Needs python 3.10 or later and Node.js 20.13 or laternpm sta
+
+1. In `Orbital-Witness-main`
+```
+# Create a virtual env
+python -m venv env
+source env/Scripts/activate # env\Scripts\activate on Windows
+
+Install Django and aiohttp:
+pip install -r reqs.txt
+```
+
 Instructions on how to install and set up the project.
 
 ## Usage
