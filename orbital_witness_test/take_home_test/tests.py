@@ -2,7 +2,7 @@ from django.test import TestCase
 
 # Create your tests here.
 
-from .calculate_usage import calculate_message_cost
+from .utils import calculate_message_cost
 
 class TestCalculateUsage(TestCase):
     # I am aware that these tests are not exhaustive and don't all pass, but I am running out of time

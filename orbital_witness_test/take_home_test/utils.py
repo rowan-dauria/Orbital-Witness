@@ -52,6 +52,7 @@ async def fetch_report(session: aiohttp.ClientSession, msg: Dict[str, Any]) -> N
 
 
 # I would split the different calculations into separate functions to make the code more testable
+# But this only occured to me after I had written the code and I don't have time to refactor it.
 def calculate_message_cost(message: str) -> float:
     base_message_cost = 1
     length_cost = len(message) * 0.05
@@ -65,7 +66,6 @@ def calculate_message_cost(message: str) -> float:
     # time complexity is O(n) where n is the length of the message
     punc = '!\"#$%&()*+,./:;<=>?@[\]^_`{|}~' # removed '-' and "'"
     words = re.sub('['+punc+']', '', message).split()
-    print(words)
     unique_words = set([])
     i = 0
     # time complexity is O(n) where n is the number of words in the message
