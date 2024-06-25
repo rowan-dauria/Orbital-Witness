@@ -39,10 +39,15 @@ function sortAlgForCriteria({ sortDatetime, sortReport}) {
   const datetimeSortNumber = sortDatetime === 'desc' ? -1 : 1;
   const reportSortNumber = sortReport === 'asc' ? 1 : sortReport === 'desc' ? -1 : 0;
 
+  // Intl.collator is faster than String.localeCompare whilst using locale-aware sorting
+  // Leaving the locale as undefined will use the browser's locale, which means
+  // Report names will be sorted according to the user's locale
+  const collator = new Intl.Collator(undefined, {numeric: true});
+
   // ISO date strings are lexigraphically sortable
   // This could be optimised to avoid needless comparisons
   return (usageData1, usageData2) => {
-    const datetimeSort = (usageData1.timestamp.localeCompare(usageData2.timestamp)) * datetimeSortNumber;
+    const datetimeSort = (collator.compare(usageData1.timestamp, usageData2.timestamp)) * datetimeSortNumber;
 
     const report_name1 = usageData1?.report_name ? usageData1.report_name : '';
     const report_name2 = usageData2?.report_name ? usageData2.report_name : '';
@@ -54,7 +59,7 @@ function sortAlgForCriteria({ sortDatetime, sortReport}) {
       reportSort =  1;
     } else if (report_name1 !== '' && report_name2 === '') {
       reportSort = -1;
-    } else  reportSort = (report_name1.localeCompare(report_name2)) * reportSortNumber;
+    } else  reportSort = (collator.compare(report_name1, report_name2)) * reportSortNumber;
 
     // Unless report name sorting is provided, prioritise datetime
     if (reportSortNumber !== 0) {
@@ -85,7 +90,7 @@ const getBrowserLocale = () => Intl.DateTimeFormat().resolvedOptions().timeZone
 
 function App() {
   const [usageData, setUsageData] = useState([]);
-  const [sortingCriteria, setSortingCriteria] = useState(getSortingCriteria());
+  const [sortingCriteria] = useState(getSortingCriteria());
 
   useEffect(() => {
     if (!(usageData.length)) {

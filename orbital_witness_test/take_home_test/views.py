@@ -18,6 +18,8 @@ async def usage(request: HttpRequest) -> JsonResponse:
         async with session.get('https://owpublic.blob.core.windows.net/tech-task/messages/current-period') as response:
             data = await response.json()
     
-    result = await calculate_credits(data['messages'])
+        result = await calculate_credits(session, data['messages'])
+        # Close session to release connection resources
+        await session.close()
     
     return JsonResponse({'usage': result})

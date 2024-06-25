@@ -4,26 +4,25 @@ from typing import Any, Dict, List
 import re
 
 
+# Session passed in to make it easier to mock in tests, also don't need more than one session
+async def calculate_credits(session: aiohttp.ClientSession, messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    tasks = []
+    # Asynchronously fetch reports for messages that require it to avoid blocking
+    for msg in messages:
+        if 'report_id' in msg:
+            # I pass in the whole message to fetch_report because otherwise I will have to await fetch_report
+            # to return the cost of the message, which will block calculation of other message costs by holding up the for loop.
+            # Instead, the method I have used allows all calculations and report fetching to be done concurrently.
 
-async def calculate_credits(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        # Asynchronously fetch reports for messages that require it to avoid blocking
-        for msg in messages:
-            if 'report_id' in msg:
-                # I pass in the whole message to fetch_report because otherwise I will have to await fetch_report
-                # to return the cost of the message, which will block calculation of other message costs by holding up the for loop.
-                # Instead, the method I have used allows all calculations and report fetching to be done concurrently.
+            # Create a task for each message that requires fetching a report
+            tasks.append(asyncio.create_task(fetch_report(session, msg)))
+        else:
+            msg['credits_used'] = calculate_message_cost(msg['text'])
+            msg.pop('text')
+    # Wait for all reports to be fetched
+    await asyncio.gather(*tasks)
 
-                # Create a task for each message that requires fetching a report
-                tasks.append(asyncio.create_task(fetch_report(session, msg)))
-            else:
-                msg['credits_used'] = calculate_message_cost(msg['text'])
-                msg.pop('text')
-        # Wait for all reports to be fetched
-        await asyncio.gather(*tasks)
-    
-        return messages
+    return messages
 
 # I don't like how the message object is being altered in multiple ways
 # because I prefer to keep my functions single purpose, but I don't have time to improve this.
