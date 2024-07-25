@@ -1,5 +1,7 @@
 # Orbital Witness Take Home Test
 
+Full stack application with Python/Django backend and React frontend. The app retrieves data from Orbital Witness endpoints and displays it in tabular format. Part of take-home test for SWE role at Orbital Witness.
+
 ## Installation
 
 Needs python 3.10 or later and Node.js 20.13 or later
